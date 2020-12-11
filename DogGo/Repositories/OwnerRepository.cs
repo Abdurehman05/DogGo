@@ -30,7 +30,7 @@ namespace DogGo.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        SELECT Id, [Name], Address, NeighborhoodId, Phone
+                        SELECT Id, Email, [Name], Address, NeighborhoodId, Phone
                         FROM Owner
                     ";
 
@@ -58,6 +58,45 @@ namespace DogGo.Repositories
                 }
             }
         }
+        public Owner GetOwnerById(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT Id, Email, [Name], Address, NeighborhoodId, Phone
+                        FROM Owner
+                        WHERE Id = @id
+                    ";
 
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        Owner owner = new Owner
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Email = reader.GetString(reader.GetOrdinal("Email")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Address = reader.GetString(reader.GetOrdinal("Address")),
+                            Phone = reader.GetString(reader.GetOrdinal("Phone")),
+                            NeighborhoodId = reader.GetInt32(reader.GetOrdinal("NeighborhoodId"))
+                        };
+
+                        reader.Close();
+                        return owner;
+                    }
+                    else
+                    {
+                        reader.Close();
+                        return null;
+                    }
+                }
+            }
+        }
     }
 }
