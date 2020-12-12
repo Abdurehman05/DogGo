@@ -31,8 +31,9 @@ namespace DogGo.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        SELECT Id,[Name], Breed, OwnerId, Notes, ImageUrl
-                        FROM Dog
+                        SELECT d.Id,d.[Name], Breed, OwnerId, Notes, ImageUrl
+                        FROM Dog d
+                        JOIN Owner o ON d.OwnerId = o.Id
                     ";
 
                     SqlDataReader reader = cmd.ExecuteReader();
@@ -47,7 +48,11 @@ namespace DogGo.Repositories
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Breed = reader.GetString(reader.GetOrdinal("Breed")),
                             Notes = ReaderUtils.GetNullableString(reader, "Notes"),
-                            ImageUrl = ReaderUtils.GetNullableString(reader, "ImageUrl")
+                            ImageUrl = ReaderUtils.GetNullableString(reader, "ImageUrl"),
+                            Owner = new Owner()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("OwnerId")),
+                            }
                         };
 
                         dogs.Add(dog);
@@ -59,6 +64,29 @@ namespace DogGo.Repositories
                 }
             }
         }
+        public void AddDog(Dog dog)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                    INSERT INTO Dog ([Name], OwnerId, Breed, Notes, ImageUrl)
+                    OUTPUT INSERTED.ID
+                    VALUES (@name, @ownerId, @breed, @notes, @imageUrl);
+                ";
+
+                    cmd.Parameters.AddWithValue("@name", dog.Name);
+                    cmd.Parameters.AddWithValue("@ownerId", dog.OwnerId);
+                    cmd.Parameters.AddWithValue("@breed", dog.Breed);                    
+                    cmd.Parameters.Add(new SqlParameter("@notes", dog.Notes ?? (object)DBNull.Value));
+                    cmd.Parameters.Add(new SqlParameter("@imageUrl", dog.ImageUrl ?? (object)DBNull.Value));
+                    int id = (int)cmd.ExecuteScalar();
+                    dog.Id = id;
+                }
+            }
+        }
         public Dog GetDogById(int id)
         {
             using (SqlConnection conn = Connection)
@@ -67,7 +95,7 @@ namespace DogGo.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        SELECT Id,[Name], Breed, OwnerId, Notes, ImageUrl
+                        SELECT Id,[Name],  OwnerId, Breed, Notes, ImageUrl
                         FROM Dog
                         WHERE Id = @id
                     ";
@@ -81,8 +109,8 @@ namespace DogGo.Repositories
                         Dog dog = new Dog
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                            OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
+                            OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId")),                           
                             Breed = reader.GetString(reader.GetOrdinal("Breed")),
                             Notes = ReaderUtils.GetNullableString(reader, "Notes"),
                             ImageUrl = ReaderUtils.GetNullableString(reader, "ImageUrl")
