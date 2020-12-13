@@ -92,7 +92,7 @@ namespace DogGo.Controllers
         // POST: OwnersController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Delete(int id, Owner owner)
         {
             try
             {
