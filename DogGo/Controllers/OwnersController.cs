@@ -15,11 +15,13 @@ namespace DogGo.Controllers
         private readonly IOwnerRepository _ownerRepo;
         private readonly IDogRepository _dogRepository;
         private readonly IWalkerRepository _walkerRepository;
-        public OwnersController(IOwnerRepository ownerRepository, IDogRepository dogRepository, IWalkerRepository walkerRepository)
+        private readonly INeighborhoodRepository _neighborhoodRepo;
+        public OwnersController(IOwnerRepository ownerRepository, IDogRepository dogRepository, IWalkerRepository walkerRepository, INeighborhoodRepository neighborhoodRepo)
         {
             _ownerRepo = ownerRepository;
             _dogRepository = dogRepository;
             _walkerRepository = walkerRepository;
+            _neighborhoodRepo = neighborhoodRepo;
         }
         // GET: OwnersController
         public ActionResult Index()
@@ -34,39 +36,48 @@ namespace DogGo.Controllers
             Owner owner = _ownerRepo.GetOwnerById(id);
             List<Dog> dogs = _dogRepository.GetDogsByOwnerId(owner.Id);
             List<Walker> walkers = _walkerRepository.GetWalkersInNeighborhood(owner.NeighborhoodId);
+            
 
-            if (owner == null)
-            {
-                return NotFound();
-            }
             OwnerProfileViewModel vm = new OwnerProfileViewModel()
             {
                 Owner = owner,
                 Dogs = dogs,
                 Walkers = walkers
             };
+            if (owner == null)
+            {
+                return NotFound();
+            }
             return View(vm);
         }
 
         // GET: OwnersController/Create
         public ActionResult Create()
         {
-            return View();
+            List<Neighborhood> neighborhoods = _neighborhoodRepo.GetAll();
+            OwnerFormViewModel vm = new OwnerFormViewModel()
+            {
+                Owner = new Owner(),
+                Neighborhoods = neighborhoods
+            };
+            return View(vm);
         }
 
         // POST: OwnersController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Owner owner)
+        public ActionResult Create(OwnerFormViewModel viewModel)
         {
             try
             {
-                _ownerRepo.AddOwner(owner);
+                viewModel.ErrorMessage = "Woops! Something went wrong while saving this owner";
+                _ownerRepo.AddOwner(viewModel.Owner);
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View(owner);
+                viewModel.Neighborhoods = _neighborhoodRepo.GetAll();
+                return View(viewModel);
             }
         }
 
