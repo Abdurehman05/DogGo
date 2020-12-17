@@ -16,7 +16,7 @@
         </div>
         <div>
             <label class="font-weight-bold">Neighborhood:</label>
-            <span>@Model.Walker.Neighborhood.Name</span>
+            <span>@Html.DisplayNameFor(Model => Model.Walker.Neighborhood.Name)</span>
         </div>
         <div>
             @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |

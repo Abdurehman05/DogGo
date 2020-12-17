@@ -119,7 +119,7 @@ namespace DogGo.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                SELECT w.Id, [Name], ImageUrl, w.NeighborhoodId, n.Id, n.Name As NeighborhoodName
+                SELECT w.Id, w.[Name], ImageUrl, w.NeighborhoodId, n.Id, n.Name As NeighborhoodName
                 FROM Walker w
                 JOIN Neighborhood n ON w.NeighborhoodId = n.Id
                 WHERE NeighborhoodId = @neighborhoodId
