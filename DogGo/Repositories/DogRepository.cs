@@ -79,11 +79,13 @@ namespace DogGo.Repositories
 
                     cmd.Parameters.AddWithValue("@name", dog.Name);
                     cmd.Parameters.AddWithValue("@ownerId", dog.OwnerId);
-                    cmd.Parameters.AddWithValue("@breed", dog.Breed);                    
-                    cmd.Parameters.Add(new SqlParameter("@notes", dog.Notes ?? (object)DBNull.Value));
-                    cmd.Parameters.Add(new SqlParameter("@imageUrl", dog.ImageUrl ?? (object)DBNull.Value));
-                    int id = (int)cmd.ExecuteScalar();
-                    dog.Id = id;
+                    cmd.Parameters.AddWithValue("@breed", dog.Breed);     
+                    
+                    cmd.Parameters.AddWithValue("@notes", dog.Notes ?? "");
+                    cmd.Parameters.AddWithValue("@imageUrl", dog.ImageUrl ?? "");
+
+                    int newlyCreatedId = (int)cmd.ExecuteScalar();
+                    dog.Id = newlyCreatedId;
                 }
             }
         }
@@ -197,9 +199,12 @@ namespace DogGo.Repositories
                     cmd.Parameters.AddWithValue("@name", dog.Name);
                     cmd.Parameters.AddWithValue("@ownerId", dog.OwnerId);
                     cmd.Parameters.AddWithValue("@breed", dog.Breed);
-                    cmd.Parameters.Add(new SqlParameter("@notes", dog.Notes ?? (object)DBNull.Value));
-                    cmd.Parameters.Add(new SqlParameter("@imageUrl", dog.ImageUrl ?? (object)DBNull.Value));
+                    cmd.Parameters.AddWithValue("@notes", dog.Notes ?? "");
+                    cmd.Parameters.AddWithValue("@imageUrl", dog.ImageUrl ?? "");
                     cmd.Parameters.AddWithValue("@id", dog.Id);
+
+                    
+                   
 
                     cmd.ExecuteNonQuery();
                 }
