@@ -26,7 +26,15 @@ namespace DogGo.Controllers
         // GET: DogController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+           Dog dog = _dogRepo.GetDogById(id);
+            if (dog == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return View(dog);
+            }
         }
 
         // GET: DogController/Create
@@ -54,21 +62,23 @@ namespace DogGo.Controllers
         // GET: DogController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+           Dog dog = _dogRepo.GetDogById(id);
+            return View(dog);
         }
 
         // POST: DogController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, Dog dog)
         {
             try
             {
+                _dogRepo.UpdateDog(dog);
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                return View(dog);
             }
         }
 
