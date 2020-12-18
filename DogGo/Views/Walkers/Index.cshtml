@@ -20,7 +20,7 @@
                 @Html.DisplayNameFor(model => model.ImageUrl)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NeighborhoodId)
+                @Html.DisplayNameFor(model => model.Neighborhood)
             </th>
             <th></th>
         </tr>
@@ -36,7 +36,7 @@
               <img src="@item.ImageUrl" />
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.NeighborhoodId)
+                @Html.DisplayFor(modelItem => item.Neighborhood.Name)
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id=item.Id}) |
