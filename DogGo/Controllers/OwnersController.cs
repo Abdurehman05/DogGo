@@ -29,19 +29,19 @@ namespace DogGo.Controllers
         // GET: OwnersController
         public ActionResult Index()
         {
-            int ownerId = GetCurrentUserId();
-            List<Owner> owners = _ownerRepo.GetAllOwners();
-            return View(owners);
+            int currentUserId = GetCurrentUserId();
+            return RedirectToAction("Details", new { id = currentUserId });
         }
 
         // GET: OwnersController/Details/5
         public ActionResult Details(int id)
         {
-            Owner owner = _ownerRepo.GetOwnerById(id);
-            if (owner == null)
+            int currentUserId = GetCurrentUserId();
+            if (currentUserId != id)
             {
                 return NotFound();
             }
+            Owner owner = _ownerRepo.GetOwnerById(id);
             List<Dog> dogs = _dogRepository.GetDogsByOwnerId(owner.Id);
             List<Walker> walkers = _walkerRepository.GetWalkersInNeighborhood(owner.NeighborhoodId);
             
@@ -52,6 +52,10 @@ namespace DogGo.Controllers
                 Dogs = dogs,
                 Walkers = walkers
             };
+            if(owner == null)
+            {
+                return NotFound();
+            }
             
             return View(vm);
         }
@@ -89,6 +93,11 @@ namespace DogGo.Controllers
         // GET: OwnersController/Edit/5
         public ActionResult Edit(int id)
         {
+            int currentUserId = GetCurrentUserId();
+            if(currentUserId != id)
+            {
+                return NotFound();
+            }
             List<Neighborhood> neighborhoods = _neighborhoodRepo.GetAll();
             OwnerFormViewModel vm = new OwnerFormViewModel()
             {
@@ -177,6 +186,11 @@ namespace DogGo.Controllers
         {
             string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return int.Parse(id);
+        }
+        public async Task<ActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return RedirectToAction("Login");
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using DogGo.Models;
 using DogGo.Models.ViewModels;
 using DogGo.Repositories;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -65,15 +67,16 @@ namespace DogGo.Controllers
         // POST: WalkersController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Walker walker)
         {
             try
             {
+                _walkerRepo.AddWalker(walker);
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                return View(walker);
             }
         }
 
@@ -122,6 +125,37 @@ namespace DogGo.Controllers
         {
             string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return int.Parse(id);
+        }
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Login(LoginViewModel viewModel)
+        {
+            Walker walker = _walkerRepo.GetWalkerByEmail(viewModel.Email);
+
+            if (walker == null)
+            {
+                return Unauthorized();
+            }
+
+            List<Claim> claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, walker.Id.ToString()),
+        new Claim(ClaimTypes.Email, walker.Email),
+        new Claim(ClaimTypes.Role, "DogWalker"),
+    };
+
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity));
+
+            return RedirectToAction("Index", "Walkers");
         }
     }
 }
