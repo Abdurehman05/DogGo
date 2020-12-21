@@ -84,23 +84,30 @@ namespace DogGo.Controllers
         // GET: OwnersController/Edit/5
         public ActionResult Edit(int id)
         {
-            Owner owner = _ownerRepo.GetOwnerById(id);
-            return View(owner);
+            List<Neighborhood> neighborhoods = _neighborhoodRepo.GetAll();
+            OwnerFormViewModel vm = new OwnerFormViewModel()
+            {
+                Owner = new Owner(),
+                Neighborhoods = neighborhoods
+            };
+            return View(vm);
         }
 
         // POST: OwnersController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, Owner owner)
+        public ActionResult Edit(int id, OwnerFormViewModel viewModel)
         {
             try
             {
-                _ownerRepo.UpdateOwner(owner);
+                viewModel.ErrorMessage = "Woops! Something went wrong while saving this owner";
+                _ownerRepo.UpdateOwner(viewModel.Owner);
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View(owner);
+                viewModel.Neighborhoods = _neighborhoodRepo.GetAll();
+                return View(viewModel);
             }
         }
 
