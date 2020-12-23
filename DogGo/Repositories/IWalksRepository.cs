@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DogGo.Repositories
 {
-    public interface IWalkRepository
+    public interface IWalksRepository
     {
         List<Walks> GetAllWalks();
         Walks GetWalkById(int id);

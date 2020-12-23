@@ -34,6 +34,10 @@ namespace DogGo.Controllers
         public ActionResult Details(int id)
         {
             Owner owner = _ownerRepo.GetOwnerById(id);
+            if (owner == null)
+            {
+                return NotFound();
+            }
             List<Dog> dogs = _dogRepository.GetDogsByOwnerId(owner.Id);
             List<Walker> walkers = _walkerRepository.GetWalkersInNeighborhood(owner.NeighborhoodId);
             
@@ -44,10 +48,7 @@ namespace DogGo.Controllers
                 Dogs = dogs,
                 Walkers = walkers
             };
-            if (owner == null)
-            {
-                return NotFound();
-            }
+            
             return View(vm);
         }
 
