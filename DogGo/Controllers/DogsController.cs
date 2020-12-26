@@ -1,5 +1,6 @@
 ﻿using DogGo.Models;
 using DogGo.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -18,6 +19,7 @@ namespace DogGo.Controllers
             _dogRepo = dogRepository;
         }
         // GET: DogController
+        [Authorize]
         public ActionResult Index()
         {
             int ownerId = GetCurrentUserId();
@@ -40,6 +42,7 @@ namespace DogGo.Controllers
         }
 
         // GET: DogController/Create
+        [Authorize]
         public ActionResult Create()
         {
             return View();
@@ -52,6 +55,8 @@ namespace DogGo.Controllers
         {
             try
             {
+                // update the dogs OwnerId to the current user's Id
+                dog.OwnerId = GetCurrentUserId();
                 _dogRepo.AddDog(dog);
                 return RedirectToAction(nameof(Index));
             }
@@ -65,6 +70,14 @@ namespace DogGo.Controllers
         public ActionResult Edit(int id)
         {
            Dog dog = _dogRepo.GetDogById(id);
+            if(dog == null)
+            {
+                return NotFound();
+            }
+            if(dog.OwnerId != GetCurrentUserId())
+            {
+                return NotFound();
+            }
             return View(dog);
         }
 
@@ -75,6 +88,7 @@ namespace DogGo.Controllers
         {
             try
             {
+                dog.OwnerId = GetCurrentUserId();
                 _dogRepo.UpdateDog(dog);
                 return RedirectToAction(nameof(Index));
             }
@@ -87,8 +101,13 @@ namespace DogGo.Controllers
         // GET: DogController/Delete/5
         public ActionResult Delete(int id)
         {
+            
             Dog dog = _dogRepo.GetDogById(id);
             if(dog == null)
+            {
+                return NotFound();
+            }
+            if(dog.OwnerId != GetCurrentUserId())
             {
                 return NotFound();
             }
@@ -102,6 +121,7 @@ namespace DogGo.Controllers
         {
             try
             {
+                dog.OwnerId = GetCurrentUserId();
                 _dogRepo.DeleteDog(id);
                 return RedirectToAction(nameof(Index));
             }
