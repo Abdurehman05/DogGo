@@ -41,22 +41,17 @@ namespace DogGo.Controllers
                 return NotFound();
             }
             List<Walks> walks = _walksRepo.GetWalksByWalkerId(walker.Id);
-            List<Owner> owners = _ownerRepo.GetAllOwners();
-            List<Owner> ownersWithDogs = new List<Owner>();
-            foreach (Owner owner in owners)
-            {
-                ownersWithDogs.Add(new Owner
-                {
-                    Name = owner.Name,
-                    Dogs = _dogRepo.GetDogsByOwnerId(owner.Id)
-                });
-            };
+            int totalWalkSeconds = walks.Sum(w => w.Duration);
+            TimeSpan walkTime = TimeSpan.FromSeconds(totalWalkSeconds);
+            string walkTimeDisplay = $"{walkTime.Hours}Hr {walkTime.Minutes}min";
+
 
             WalkerProfileViewModel vm = new WalkerProfileViewModel()
             {
                 Walker = walker,
                 Walks = walks,
-                Owners = ownersWithDogs,
+                TotalTimeWalkedDisplay = walkTimeDisplay
+             
             };
             return View(vm);
         }

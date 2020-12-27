@@ -52,6 +52,7 @@ namespace DogGo.Repositories
                             Owner = new Owner()
                             {
                                 Id = reader.GetInt32(reader.GetOrdinal("OwnerId")),
+                                Name = reader.GetString(reader.GetOrdinal("Name"))
                             }
                         };
 
@@ -115,7 +116,12 @@ namespace DogGo.Repositories
                             OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId")),                           
                             Breed = reader.GetString(reader.GetOrdinal("Breed")),
                             Notes = ReaderUtils.GetNullableString(reader, "Notes"),
-                            ImageUrl = ReaderUtils.GetNullableString(reader, "ImageUrl")
+                            ImageUrl = ReaderUtils.GetNullableString(reader, "ImageUrl"),
+                            Owner = new Owner()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("OwnerId")),
+                                Name = reader.GetString(reader.GetOrdinal("Name"))
+                            }
                         };
 
                         reader.Close();
@@ -158,7 +164,12 @@ namespace DogGo.Repositories
                             Breed = reader.GetString(reader.GetOrdinal("Breed")),
                             OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId")),
                             Notes = ReaderUtils.GetNullableString(reader, "Notes"),
-                            ImageUrl = ReaderUtils.GetNullableString(reader, "ImageUrl")
+                            ImageUrl = ReaderUtils.GetNullableString(reader, "ImageUrl"),
+                            Owner = new Owner()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("OwnerId")),
+                                Name = reader.GetString(reader.GetOrdinal("Name"))
+                            }
                         };
 
                         // Check if optional columns are null
