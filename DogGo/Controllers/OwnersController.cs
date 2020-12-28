@@ -29,6 +29,7 @@ namespace DogGo.Controllers
         // GET: OwnersController
         public ActionResult Index()
         {
+            int ownerId = GetCurrentUserId();
             List<Owner> owners = _ownerRepo.GetAllOwners();
             return View(owners);
         }
@@ -171,6 +172,11 @@ namespace DogGo.Controllers
                 new ClaimsPrincipal(claimsIdentity));
 
             return RedirectToAction("Index", "Dogs");
+        }
+         private int GetCurrentUserId()
+        {
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.Parse(id);
         }
     }
 }
