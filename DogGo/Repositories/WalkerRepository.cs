@@ -154,5 +154,68 @@ namespace DogGo.Repositories
                 }
             }
         }
+        public Walker GetWalkerByEmail(string email)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT Id, [Name], Email, ImageUrl, NeighborhoodId
+                        FROM Walker
+                        WHERE Email = @email";
+
+                    cmd.Parameters.AddWithValue("@email", email);
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        Walker walker = new Walker()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Email = reader.GetString(reader.GetOrdinal("Email")),
+                            ImageUrl = reader.GetString(reader.GetOrdinal("ImageUrl")),                           
+                            NeighborhoodId = reader.GetInt32(reader.GetOrdinal("NeighborhoodId"))
+                        };
+
+                        reader.Close();
+                        return walker;
+                    }
+
+                    reader.Close();
+                    return null;
+                }
+            }
+        }
+        public void AddWalker(Walker walker)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                    INSERT INTO Walker ([Name], Email, ImageUrl, NeighborhoodId)
+                    OUTPUT INSERTED.ID
+                    VALUES (@name, @email, @imageUrl, @neighborhoodId);
+                ";
+
+                    cmd.Parameters.AddWithValue("@name", walker.Name);
+                    cmd.Parameters.AddWithValue("@email", walker.Email);
+                    cmd.Parameters.AddWithValue("@imageUrl", walker.ImageUrl ?? "");
+                    cmd.Parameters.AddWithValue("@neighborhoodId", walker.NeighborhoodId);
+                    
+
+                    int id = (int)cmd.ExecuteScalar();
+
+                    walker.Id = id;
+                }
+            }
+        }
+
     }
 }

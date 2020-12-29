@@ -19,6 +19,8 @@ namespace DogGo.Models
         [Required]
         [DisplayName("Neighborhood")]
         public int NeighborhoodId { get; set; }
+        [EmailAddress]
+        public string Email { get; set; }
         public Neighborhood Neighborhood { get; set; }
     }
 }
