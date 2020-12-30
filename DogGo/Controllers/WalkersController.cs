@@ -30,18 +30,20 @@ namespace DogGo.Controllers
         // GET: WalkersController
         public ActionResult Index()
         {
-            List<Walker> walkers = _walkerRepo.GetAllWalkers();
-            return View(walkers);
+            int currentUserId = GetCurrentUserId();
+            return RedirectToAction("Details", new { id = currentUserId });
         }
+        
 
         // GET: WalkersController/Details/5
         public ActionResult Details(int id)
         {
-            Walker walker = _walkerRepo.GetWalkerById(id);
-            if(walker == null)
+            int currentUserId = GetCurrentUserId();
+            if(currentUserId != id)
             {
                 return NotFound();
             }
+            Walker walker = _walkerRepo.GetWalkerById(id);
             List<Walks> walks = _walksRepo.GetWalksByWalkerId(walker.Id);
             int totalWalkSeconds = walks.Sum(w => w.Duration);
             TimeSpan walkTime = TimeSpan.FromSeconds(totalWalkSeconds);
@@ -55,6 +57,10 @@ namespace DogGo.Controllers
                 TotalTimeWalkedDisplay = walkTimeDisplay
              
             };
+            if (walker == null)
+            {
+                return NotFound();
+            }
             return View(vm);
         }
 
